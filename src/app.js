@@ -4,6 +4,10 @@ import express from 'express';
 // Importa el middleware 'morgan', que se usa para registrar (log) solicitudes HTTP en la consola.
 import morgan from 'morgan';
 
+import taskRoutes from './routes/task.routes.js'
+
+import authRoutes from './routes/auth.routes.js'
+
 // Crea una instancia de la aplicación de Express. Esta instancia es una función que representa la app.
 const app = express();
 
@@ -17,7 +21,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Define una ruta GET para la raíz ('/') que envía una respuesta JSON con un mensaje de bienvenida.
-app.get('/', (req, res) => res.json({ message: "Welcome" }));
+app.get("/", (req, res) => res.json({ message: "Welcome" }));
+
+app.use("/api", taskRoutes);
+
+app.use("/api", authRoutes);
 
 // Middleware de manejo de errores que captura errores y envía una respuesta JSON con el código de estado 500.
 app.use((err, req, res, next) => {
