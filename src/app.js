@@ -4,12 +4,14 @@ import express from 'express';
 import morgan from 'morgan';
 import taskRoutes from './routes/task.routes.js'
 import authRoutes from './routes/auth.routes.js'
-
+import cookieParser from 'cookie-parser';
 // Crea una instancia de la aplicación de Express. Esta instancia es una función que representa la app.
 const app = express();
 
 // Usa el middleware 'morgan' en el modo 'dev' para registrar solicitudes HTTP en formato simplificado en la consola.
 app.use(morgan('dev'));
+
+app.use(cookieParser());
 
 // Middleware que permite a la aplicación recibir datos en formato JSON en las solicitudes.
 app.use(express.json());

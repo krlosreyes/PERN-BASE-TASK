@@ -3,8 +3,9 @@ import {
 } from '../db.js';
 
 export const getAllTasks = async (req, res) => {
-    const result = await pool.query('SELECT * FROM task');
-    console.log(result.rows)
+    console.log(req.userId, req.userName);
+    const result = await pool.query('SELECT * FROM task WHERE user_id = $1',[req.userId, ]);
+    //console.log(result.rows)
     return res.json(result.rows);
 };
 
@@ -25,7 +26,7 @@ export const createTask = async (req, res, next) => {
     } = req.body;
     //db insert
     try {
-        const result = await pool.query('INSERT INTO task (title, description) VALUES ($1,$2) RETURNING *', [title, description]);
+        const result = await pool.query('INSERT INTO task (title, description, user_id) VALUES ($1,$2,$3) RETURNING *', [title, description, req.userId]);
         res.json(result.rows[0])
     } catch (error) {
         if (error.code === "23505") {
@@ -37,15 +38,29 @@ export const createTask = async (req, res, next) => {
     }
 };
 
-export const updateTask = (req, res) => res.send('Updating Task By Id');
+export const updateTask = async (req, res) => {
+    const id = req.params.id;
+    const {
+        title,
+        description
+    } = req.body;
+
+    const result = await pool.query("UPDATE task SET title = $1, description = $2 WHERE id = $3 RETURNING *", [title, description, id]);
+
+    if (result.rowCount === 0) {
+        return res.status(404).json({
+            message: "The task dont be Updated",
+        });
+    }
+    return res.json(result.rows[0]);
+};
 
 export const deleteTask = async (req, res) => {
-    const result = await pool.query('DELETE FROM task WHERE id = $1 RETURNING *', [req.params.id])
-    console.log(result)
+    const result = await pool.query('DELETE FROM task WHERE id = $1', [req.params.id])
     if (result.rowCount === 0) {
         return res.status(404).json({
             message: "There is no task with that ID",
         })
     }
-    return res.send(`Tarea ${req.params.id} Eliminada`)
+    return res.sendStatus(204);
 }
