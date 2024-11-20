@@ -5,9 +5,15 @@ import morgan from 'morgan';
 import taskRoutes from './routes/task.routes.js'
 import authRoutes from './routes/auth.routes.js'
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 // Crea una instancia de la aplicación de Express. Esta instancia es una función que representa la app.
 const app = express();
 
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
 // Usa el middleware 'morgan' en el modo 'dev' para registrar solicitudes HTTP en formato simplificado en la consola.
 app.use(morgan('dev'));
 
