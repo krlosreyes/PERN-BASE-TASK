@@ -1,4 +1,4 @@
-import { useAuth } from "../context/AuthProvider";
+import { useAuth } from "../context/useAuth";
 
 function ProfilePage() {
   const { user } = useAuth();

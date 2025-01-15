@@ -1,8 +1,7 @@
 import { Card, Input, Button, Label } from "../components/ui";
 import { useForm } from "react-hook-form";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthProvider";
-import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
 
 function LoginPage() {
   const {
@@ -56,7 +55,7 @@ function LoginPage() {
           )}
           <Button>Sign in</Button>
           <div className="flex justify-between my-4">
-            <p className="font-serif">Don't have an account? </p>
+            <p className="font-serif">Dont have an account? </p>
             <p>
               <Link
                 to="/register"

@@ -1,7 +1,7 @@
 import { Input, Button, Card, Label } from "../components/ui";
 import { useForm } from "react-hook-form";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthProvider";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
 
 function RegisterPage() {
   const {

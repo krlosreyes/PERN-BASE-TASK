@@ -1,4 +1,4 @@
-import { useAuth } from "../context/AuthProvider";
+import { useAuth } from "../context/useAuth";
 
 function HomePage() {
   const data = useAuth();

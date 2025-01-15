@@ -1,18 +1,10 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import Cookie from "js-cookie";
 import axios from "../api/axios.js";
+import { AuthContext } from "./AuthContext";
 
-export const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
-
-export function AuthProvider({ children }) {
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuth, setIsAuth] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -20,41 +12,12 @@ export function AuthProvider({ children }) {
   const signUp = async (data) => {
     try {
       const res = await axios.post("/signup", data);
-      console.log(res.data);
       setUser(res.data);
       setIsAuth(true);
-
       return res.data;
     } catch (error) {
-      console.log("Full error object:", error);
-
-      // Verificamos si el error tiene respuesta y datos
-      if (error.response && error.response.data) {
-        console.log("Error response data:", error.response.data);
-
-        // Si error.response.data.error es un array, lo asignamos directamente a setErrors
-        if (Array.isArray(error.response.data.error)) {
-          return setErrors(error.response.data.error);
-        }
-
-        // Si error.response.data.error contiene un solo mensaje
-        if (error.response.data.error && error.response.data.error.message) {
-          setErrors([{ message: error.response.data.error.message }]);
-        } else {
-          // Por si acaso, mostramos el mensaje en error.response.data si existe
-          setErrors([
-            {
-              message:
-                error.response.data.message || "An unexpected error occurred",
-            },
-          ]);
-        }
-      } else {
-        // En caso de que no haya datos en error.response, mostramos un error general
-        setErrors([
-          { message: "An unexpected error occurred. Please try again." },
-        ]);
-      }
+      console.error("Error during signUp:", error);
+      handleErrors(error);
     }
   };
 
@@ -63,38 +26,39 @@ export function AuthProvider({ children }) {
       const res = await axios.post("/signin", data);
       setUser(res.data);
       setIsAuth(true);
-
       return res.data;
     } catch (error) {
-      console.log("Full error object:", error);
+      console.error("Error during signIn:", error);
+      handleErrors(error);
+    }
+  };
 
-      // Verificamos si el error tiene respuesta y datos
-      if (error.response && error.response.data) {
-        console.log("Error response data:", error.response.data);
+  const signOut = async () => {
+    try {
+      await axios.post("/signout");
+      setUser(null);
+      setIsAuth(false);
+    } catch (error) {
+      console.error("Error during signOut:", error);
+    }
+  };
 
-        // Si error.response.data.error es un array, lo asignamos directamente a setErrors
-        if (Array.isArray(error.response.data.error)) {
-          return setErrors(error.response.data.error);
-        }
-
-        // Si error.response.data.error contiene un solo mensaje
-        if (error.response.data.error && error.response.data.error.message) {
-          setErrors([{ message: error.response.data.error.message }]);
-        } else {
-          // Por si acaso, mostramos el mensaje en error.response.data si existe
-          setErrors([
-            {
-              message:
-                error.response.data.message || "An unexpected error occurred",
-            },
-          ]);
-        }
+  const handleErrors = (error) => {
+    if (error.response && error.response.data) {
+      if (Array.isArray(error.response.data.error)) {
+        setErrors(error.response.data.error);
+      } else if (error.response.data.error?.message) {
+        setErrors([{ message: error.response.data.error.message }]);
       } else {
-        // En caso de que no haya datos en error.response, mostramos un error general
         setErrors([
-          { message: "An unexpected error occurred. Please try again." },
+          {
+            message:
+              error.response.data.message || "An unexpected error occurred.",
+          },
         ]);
       }
+    } else {
+      setErrors([{ message: "An unexpected error occurred. Please try again." }]);
     }
   };
 
@@ -108,7 +72,7 @@ export function AuthProvider({ children }) {
           setIsAuth(true);
         })
         .catch((err) => {
-          console.log(err);
+          console.error("Error fetching profile:", err);
           setUser(null);
           setIsAuth(false);
         });
@@ -123,9 +87,15 @@ export function AuthProvider({ children }) {
         errors,
         signUp,
         signIn,
+        signOut,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
-}
+};
+
+// Validar los props con PropTypes
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
